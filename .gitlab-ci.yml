@@ -18,4 +18,4 @@ build 3.9:
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "google-chrome --version" | grep -q "Google Chrome"
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "mysql --version" | grep -q "MariaDB"
     # - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "nginx -version" | grep -q "nginx"
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "uwsgi" | grep -q "uWSGI"
+    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} uwsgi | grep -q "uWSGI"
