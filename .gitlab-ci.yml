@@ -1,0 +1,17 @@
+
+image: docker:stable
+
+variables:
+  IMAGE_NAME: dsilabs/zoom-cd
+
+stages:
+  - build
+
+build 3.9:
+  stage: build
+  variables:
+    PYTHON_VERSION: "3.9"
+    TAG_NAME: "3.9-latest"
+  script:
+    - docker build --no-cache -t ${IMAGE_NAME}:${TAG_NAME} .
+    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} echo "Hello World" | grep -q "Hello World!"

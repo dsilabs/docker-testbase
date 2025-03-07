@@ -3,7 +3,7 @@
 #
 
 # FROM python:$PYTHON_VERSION
-FROM python:3.9
+FROM python:3.12
 
 # install stable version of chrome
 RUN wget http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_133.0.6943.141-1_amd64.deb
