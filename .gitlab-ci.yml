@@ -13,7 +13,7 @@ build 3.9:
     PYTHON_VERSION: "3.9"
     TAG_NAME: "3.9-latest"
   script:
-    - docker build --no-cache -t ${IMAGE_NAME}:${TAG_NAME} .
+    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} --no-cache -t ${IMAGE_NAME}:${TAG_NAME} .
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} echo "Hello World" | grep -q "Hello World"
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "google-chrome --version" | grep -q "Google Chrome"
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "mysql --version" | grep -q "MariaDB"

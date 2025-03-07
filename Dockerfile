@@ -2,8 +2,9 @@
 # python web app test container
 #
 
-# FROM python:$PYTHON_VERSION
-FROM python:3.12
+ARG PYTHON_VERSION=3.12
+
+FROM python:${PYTHON_VERSION}
 
 # install stable version of chrome
 RUN wget http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_133.0.6943.141-1_amd64.deb
