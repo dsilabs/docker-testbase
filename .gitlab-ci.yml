@@ -15,5 +15,7 @@ build 3.9:
   script:
     - docker build --no-cache -t ${IMAGE_NAME}:${TAG_NAME} .
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} echo "Hello World" | grep -q "Hello World"
-    - docker run --rm testbase:3.12-latest bash -c "google-chrome --version" | grep -q "Google Chrome"
-    - docker run --rm testbase:3.12-latest bash -c "mysql --version" | grep -q "MariaDB"
+    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "google-chrome --version" | grep -q "Google Chrome"
+    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "mysql --version" | grep -q "MariaDB"
+    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "nginx -version" | grep -q "nginx"
+    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "nginx -h" | grep -q "uwsgi"
