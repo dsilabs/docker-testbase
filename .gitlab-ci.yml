@@ -33,13 +33,11 @@ stages:
     - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t ${IMAGE_NAME}:${PYTHON_VERSION} .
     - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} python --version | grep "Python ${PYTHON_VERSION}" || { echo "Python test failed"; exit 1; }
     - echo "Pushing ${IMAGE_NAME}:${PYTHON_VERSION} with Python ${PYTHON_VERSION}"
-    # - docker push ${IMAGE_NAME}:${PYTHON_VERSION}
-    # - docker image rm ${IMAGE_NAME}:${PYTHON_VERSION}  # Clean up
+    - docker push ${IMAGE_NAME}:${PYTHON_VERSION}
+    - docker image rm ${IMAGE_NAME}:${PYTHON_VERSION}  # Clean up
     - echo "Pushed successfully!"
-  # dependencies:
-  #   - "build ${PYTHON_VERSION}"  # Depend on the corresponding build job
-  # rules:
-  #   - if: '$CI_COMMIT_BRANCH == "master"'
+  only:
+    - master
 
 # Specific jobs
 build 3.7:
