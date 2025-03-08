@@ -6,16 +6,31 @@ variables:
 
 stages:
   - build
+  - publish
 
 build 3.9:
   stage: build
   variables:
     PYTHON_VERSION: "3.9"
-    TAG_NAME: "3.9-latest"
+    TAG_NAME: "3.9"
   script:
     - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} --no-cache -t ${IMAGE_NAME}:${TAG_NAME} .
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} echo "Hello World" | grep -q "Hello World"
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "google-chrome --version" | grep -q "Google Chrome"
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "mysql --version" | grep -q "MariaDB"
-    # - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "nginx -version" | grep -q "nginx"
-    # - docker run --rm ${IMAGE_NAME}:${TAG_NAME} uwsgi | grep -q "uWSGI"
+    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} python --version | grep -q "python${PYTHON_VERSION}"
+
+publish 3.9:
+  stage: publish
+  variables:
+    PYTHON_VERSION: "3.9"
+    TAG_NAME: "3.9"
+  script:
+    - echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin
+    - echo "Building ${IMAGE_NAME}:${TAG_NAME} with Python ${PYTHON_VERSION}"
+    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} --no-cache -t ${IMAGE_NAME}:${TAG_NAME} .
+    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} python --version | grep -q "python${PYTHON_VERSION}"
+    - docker push ${IMAGE_NAME}:${TAG_NAME} && docker image rm ${IMAGE_NAME}:${TAG_NAME}
+    - echo "Pushed ${IMAGE_NAME}:${TAG_NAME} with Python ${PYTHON_VERSION}"
+  only:
+    - master
