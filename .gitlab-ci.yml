@@ -42,6 +42,26 @@ stages:
   #   - if: '$CI_COMMIT_BRANCH == "master"'
 
 # Specific jobs
+build 3.7:
+  <<: *build_definition
+  variables:
+    PYTHON_VERSION: "3.7"
+
+publish 3.7:
+  <<: *publish_definition
+  variables:
+    PYTHON_VERSION: "3.7"
+
+build 3.8:
+  <<: *build_definition
+  variables:
+    PYTHON_VERSION: "3.8"
+
+publish 3.8:
+  <<: *publish_definition
+  variables:
+    PYTHON_VERSION: "3.8"
+
 build 3.9:
   <<: *build_definition
   variables:
@@ -61,3 +81,13 @@ publish 3.12:
   <<: *publish_definition
   variables:
     PYTHON_VERSION: "3.12"
+
+build 3.13:
+  <<: *build_definition
+  variables:
+    PYTHON_VERSION: "3.13"
+
+publish 3.13:
+  <<: *publish_definition
+  variables:
+    PYTHON_VERSION: "3.13"
