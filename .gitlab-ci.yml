@@ -8,57 +8,56 @@ stages:
   - build
   - publish
 
-build 3.9:
+# Template for build jobs
+.build_template: &build_definition
   stage: build
+  before_script:
+    - apk add --no-cache bash grep  # Ensure bash and grep are available
+  script:
+    - echo "Building ${IMAGE_NAME}:${PYTHON_VERSION} with Python ${PYTHON_VERSION}"
+    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t ${IMAGE_NAME}:${PYTHON_VERSION} .
+    - echo "Running tests..."
+    - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} echo "Hello World" | grep "Hello World" || { echo "Echo test failed"; exit 1; }
+    - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} bash -c "google-chrome --version" | grep "Google Chrome" || { echo "Chrome test failed"; exit 1; }
+    - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} bash -c "mysql --version" | grep "MariaDB" || { echo "MariaDB test failed"; exit 1; }
+    - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} python --version | grep "Python ${PYTHON_VERSION}" || { echo "Python test failed"; exit 1; }
+    - echo "Tests passed!"
+
+# Template for publish jobs
+.publish_template: &publish_definition
+  stage: publish
+  before_script:
+    - echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin
+  script:
+    - echo "Building ${IMAGE_NAME}:${PYTHON_VERSION} with Python ${PYTHON_VERSION}"
+    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t ${IMAGE_NAME}:${PYTHON_VERSION} .
+    - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} python --version | grep "Python ${PYTHON_VERSION}" || { echo "Python test failed"; exit 1; }
+    - echo "Pushing ${IMAGE_NAME}:${PYTHON_VERSION} with Python ${PYTHON_VERSION}"
+    # - docker push ${IMAGE_NAME}:${PYTHON_VERSION}
+    # - docker image rm ${IMAGE_NAME}:${PYTHON_VERSION}  # Clean up
+    - echo "Pushed successfully!"
+  # dependencies:
+  #   - "build ${PYTHON_VERSION}"  # Depend on the corresponding build job
+  # rules:
+  #   - if: '$CI_COMMIT_BRANCH == "master"'
+
+# Specific jobs
+build 3.9:
+  <<: *build_definition
   variables:
     PYTHON_VERSION: "3.9"
-    TAG_NAME: "3.9"
-  script:
-    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} --no-cache -t ${IMAGE_NAME}:${TAG_NAME} .
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} echo "Hello World" | grep -q "Hello World"
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "google-chrome --version" | grep -q "Google Chrome"
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "mysql --version" | grep -q "MariaDB"
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} python --version | grep -q "Python ${PYTHON_VERSION}"
 
 publish 3.9:
-  stage: publish
+  <<: *publish_definition
   variables:
     PYTHON_VERSION: "3.9"
-    TAG_NAME: "3.9"
-  script:
-    - echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin
-    - echo "Building ${IMAGE_NAME}:${TAG_NAME} with Python ${PYTHON_VERSION}"
-    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} --no-cache -t ${IMAGE_NAME}:${TAG_NAME} .
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} python --version | grep -q "Python ${PYTHON_VERSION}"
-    - docker push ${IMAGE_NAME}:${TAG_NAME} && docker image rm ${IMAGE_NAME}:${TAG_NAME}
-    - echo "Pushed ${IMAGE_NAME}:${TAG_NAME} with Python ${PYTHON_VERSION}"
-  only:
-    - master
 
 build 3.12:
-  stage: build
+  <<: *build_definition
   variables:
     PYTHON_VERSION: "3.12"
-    TAG_NAME: "3.12"
-  script:
-    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} --no-cache -t ${IMAGE_NAME}:${TAG_NAME} .
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} echo "Hello World" | grep -q "Hello World"
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "google-chrome --version" | grep -q "Google Chrome"
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "mysql --version" | grep -q "MariaDB"
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} python --version | grep -q "Python ${PYTHON_VERSION}"
 
 publish 3.12:
-  stage: publish
+  <<: *publish_definition
   variables:
     PYTHON_VERSION: "3.12"
-    TAG_NAME: "3.12"
-  script:
-    - echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin
-    - echo "Building ${IMAGE_NAME}:${TAG_NAME} with Python ${PYTHON_VERSION}"
-    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} --no-cache -t ${IMAGE_NAME}:${TAG_NAME} .
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} python --version | grep -q "Python ${PYTHON_VERSION}"
-    - docker push ${IMAGE_NAME}:${TAG_NAME} && docker image rm ${IMAGE_NAME}:${TAG_NAME}
-    - echo "Pushed ${IMAGE_NAME}:${TAG_NAME} with Python ${PYTHON_VERSION}"
-  only:
-    - master
-
