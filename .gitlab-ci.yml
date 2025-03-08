@@ -18,7 +18,7 @@ build 3.9:
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} echo "Hello World" | grep -q "Hello World"
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "google-chrome --version" | grep -q "Google Chrome"
     - docker run --rm ${IMAGE_NAME}:${TAG_NAME} bash -c "mysql --version" | grep -q "MariaDB"
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} python --version | grep -q "python${PYTHON_VERSION}"
+    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} python --version | grep -q "Python ${PYTHON_VERSION}"
 
 publish 3.9:
   stage: publish
