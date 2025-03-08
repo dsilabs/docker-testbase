@@ -29,7 +29,7 @@ publish 3.9:
     - echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin
     - echo "Building ${IMAGE_NAME}:${TAG_NAME} with Python ${PYTHON_VERSION}"
     - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} --no-cache -t ${IMAGE_NAME}:${TAG_NAME} .
-    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} python --version | grep -q "python${PYTHON_VERSION}"
+    - docker run --rm ${IMAGE_NAME}:${TAG_NAME} python --version | grep -q "Python ${PYTHON_VERSION}"
     - docker push ${IMAGE_NAME}:${TAG_NAME} && docker image rm ${IMAGE_NAME}:${TAG_NAME}
     - echo "Pushed ${IMAGE_NAME}:${TAG_NAME} with Python ${PYTHON_VERSION}"
   only:
