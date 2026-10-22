@@ -1,5 +1,5 @@
 
-image: docker:stable
+image: docker:29-cli
 
 variables:
   IMAGE_NAME: dsilabs/testbase
