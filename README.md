@@ -70,10 +70,9 @@ To modify the NGINX configuration, you can edit the files inside the container.
 
 - **Security**: The MariaDB root password is set to 'root' for convenience in testing
 environments. For production use, consider changing this password and adjusting permissions.
-- **Chrome Installation**: The Chrome installation method used here may not be the most
-secure or reliable. Consider using official Debian packages or alternative methods for
-production use.  We used this method because we needed a specific version of Chrome that
-is stable for testing.  The more recent 134.* version is not stable at this time.
+- **Chrome Installation**: Chrome is the pinned Chrome for Testing build, not the
+current Google apt package. 133.* is kept because the 134.* deb was not stable for
+testing. The binary is at `/opt/chrome-linux64/chrome` and linked as `google-chrome`.
 - **Customization**: This image is intended as a base. You can further customize it by
 adding specific dependencies, environment variables, or configurations required by your
 project.
