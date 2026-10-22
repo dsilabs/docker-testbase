@@ -22,6 +22,7 @@ stages:
     - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} bash -c "google-chrome --version" | grep "Google Chrome" || { echo "Chrome test failed"; exit 1; }
     - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} bash -c "mysql --version" | grep "MariaDB" || { echo "MariaDB test failed"; exit 1; }
     - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} python --version | grep "Python ${PYTHON_VERSION}" || { echo "Python test failed"; exit 1; }
+    - docker run --rm -i -e EXPECTED_PYTHON="${PYTHON_VERSION}" ${IMAGE_NAME}:${PYTHON_VERSION} bash -s < scripts/uwsgi-smoke.sh || { echo "uWSGI smoke test failed"; exit 1; }
     - echo "Tests passed!"
 
 # Template for publish jobs
@@ -33,6 +34,7 @@ stages:
     - echo "Building ${IMAGE_NAME}:${PYTHON_VERSION} with Python ${PYTHON_VERSION}"
     - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t ${IMAGE_NAME}:${PYTHON_VERSION} .
     - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} python --version | grep "Python ${PYTHON_VERSION}" || { echo "Python test failed"; exit 1; }
+    - docker run --rm -i -e EXPECTED_PYTHON="${PYTHON_VERSION}" ${IMAGE_NAME}:${PYTHON_VERSION} bash -s < scripts/uwsgi-smoke.sh || { echo "uWSGI smoke test failed"; exit 1; }
     - echo "Pushing ${IMAGE_NAME}:${PYTHON_VERSION} with Python ${PYTHON_VERSION}"
     - docker push ${IMAGE_NAME}:${PYTHON_VERSION}
     - docker image rm ${IMAGE_NAME}:${PYTHON_VERSION}  # Clean up
@@ -90,6 +92,16 @@ publish 3.13:
   <<: *publish_definition
   variables:
     PYTHON_VERSION: "3.13"
+
+build 3.15:
+  <<: *build_definition
+  variables:
+    PYTHON_VERSION: "3.15"
+
+publish 3.15:
+  <<: *publish_definition
+  variables:
+    PYTHON_VERSION: "3.15"
 
 mirror_to_github:
   stage: mirror
