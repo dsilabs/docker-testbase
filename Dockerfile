@@ -31,7 +31,7 @@ RUN MYSQL_ROOT_PASSWORD=root
 RUN apt-get install -y -qqq mariadb-server
 
 # install os packages
-RUN apt-get install -y git vim cron
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y git vim cron iputils-ping locales locales-all
 
 # update pip
 RUN pip install --upgrade pip
