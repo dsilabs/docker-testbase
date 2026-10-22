@@ -4,6 +4,29 @@ image: docker:29-cli
 variables:
   IMAGE_NAME: dsilabs/testbase
 
+# Docker Hub occasionally returns 500 while resolving the base image.
+# Retry that, and only that. A real Dockerfile error still fails immediately.
+.retry_docker_build: &retry_docker_build |
+  n=0
+  while true; do
+    if docker build --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${IMAGE_NAME}:${PYTHON_VERSION}" . > /tmp/docker-build.log 2>&1; then
+      cat /tmp/docker-build.log
+      break
+    fi
+    cat /tmp/docker-build.log
+    if ! grep -E -q '500 Internal Server Error|429 Too Many Requests|toomanyrequests|TLS handshake timeout|i/o timeout|connection reset by peer|unexpected EOF' /tmp/docker-build.log; then
+      echo "docker build failed"
+      exit 1
+    fi
+    n=$((n + 1))
+    if [ "$n" -ge 4 ]; then
+      echo "docker build failed after ${n} registry retries"
+      exit 1
+    fi
+    echo "Docker Hub error resolving python:${PYTHON_VERSION}, retry ${n} in $((n * 15))s"
+    sleep $((n * 15))
+  done
+
 stages:
   - build
   - publish
@@ -16,7 +39,7 @@ stages:
     - apk add --no-cache bash grep  # Ensure bash and grep are available
   script:
     - echo "Building ${IMAGE_NAME}:${PYTHON_VERSION} with Python ${PYTHON_VERSION}"
-    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t ${IMAGE_NAME}:${PYTHON_VERSION} .
+    - *retry_docker_build
     - echo "Running tests..."
     - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} echo "Hello World" | grep "Hello World" || { echo "Echo test failed"; exit 1; }
     - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} bash -c "google-chrome --version" | grep "Google Chrome" || { echo "Chrome test failed"; exit 1; }
@@ -31,7 +54,7 @@ stages:
     - echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin
   script:
     - echo "Building ${IMAGE_NAME}:${PYTHON_VERSION} with Python ${PYTHON_VERSION}"
-    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t ${IMAGE_NAME}:${PYTHON_VERSION} .
+    - *retry_docker_build
     - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} python --version | grep "Python ${PYTHON_VERSION}" || { echo "Python test failed"; exit 1; }
     - echo "Pushing ${IMAGE_NAME}:${PYTHON_VERSION} with Python ${PYTHON_VERSION}"
     - docker push ${IMAGE_NAME}:${PYTHON_VERSION}
