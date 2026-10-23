@@ -66,28 +66,6 @@ stages:
     - master
 
 # Specific jobs
-# 3.7 and 3.8 are temporary, so the stable Chrome deb gets republished
-# over the Chrome for Testing tags. Remove them again after that test.
-build 3.7:
-  <<: *build_definition
-  variables:
-    PYTHON_VERSION: "3.7"
-
-publish 3.7:
-  <<: *publish_definition
-  variables:
-    PYTHON_VERSION: "3.7"
-
-build 3.8:
-  <<: *build_definition
-  variables:
-    PYTHON_VERSION: "3.8"
-
-publish 3.8:
-  <<: *publish_definition
-  variables:
-    PYTHON_VERSION: "3.8"
-
 build 3.9:
   <<: *build_definition
   variables:
