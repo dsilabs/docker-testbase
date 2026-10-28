@@ -46,6 +46,7 @@ stages:
     - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} bash -c "mysql --version" | grep "MariaDB" || { echo "MariaDB test failed"; exit 1; }
     - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} python --version | grep "Python ${PYTHON_VERSION}" || { echo "Python test failed"; exit 1; }
     - docker run --rm -i -e EXPECTED_PYTHON="${PYTHON_VERSION}" ${IMAGE_NAME}:${PYTHON_VERSION} bash -s < scripts/uwsgi-smoke.sh || { echo "uWSGI smoke test failed"; exit 1; }
+    - docker run --rm -i ${IMAGE_NAME}:${PYTHON_VERSION} bash -s < scripts/image-smoke.sh || { echo "Image smoke test failed"; exit 1; }
     - echo "Tests passed!"
 
 # Template for publish jobs
@@ -58,6 +59,7 @@ stages:
     - *retry_docker_build
     - docker run --rm ${IMAGE_NAME}:${PYTHON_VERSION} python --version | grep "Python ${PYTHON_VERSION}" || { echo "Python test failed"; exit 1; }
     - docker run --rm -i -e EXPECTED_PYTHON="${PYTHON_VERSION}" ${IMAGE_NAME}:${PYTHON_VERSION} bash -s < scripts/uwsgi-smoke.sh || { echo "uWSGI smoke test failed"; exit 1; }
+    - docker run --rm -i ${IMAGE_NAME}:${PYTHON_VERSION} bash -s < scripts/image-smoke.sh || { echo "Image smoke test failed"; exit 1; }
     - echo "Pushing ${IMAGE_NAME}:${PYTHON_VERSION} with Python ${PYTHON_VERSION}"
     - docker push ${IMAGE_NAME}:${PYTHON_VERSION}
     - docker image rm ${IMAGE_NAME}:${PYTHON_VERSION}  # Clean up
