@@ -11,7 +11,20 @@ FROM python:${PYTHON_VERSION}
 ARG CHROME_DEB_URL=https://mirror.cs.uchicago.edu/google-chrome/pool/main/g/google-chrome-stable/google-chrome-stable_133.0.6943.141-1_amd64.deb
 # The .deb enables dl.google.com without a key apt can use. Remove that
 # source after install so later apt-get update works. Chrome stays pinned.
-RUN wget -O /tmp/chrome.deb "${CHROME_DEB_URL}" \
+# The mirror occasionally returns 503, so retry the download.
+RUN n=0; \
+    while true; do \
+      if wget -O /tmp/chrome.deb "${CHROME_DEB_URL}"; then \
+        break; \
+      fi; \
+      n=$((n + 1)); \
+      if [ "$n" -ge 5 ]; then \
+        echo "failed to download Chrome deb"; \
+        exit 1; \
+      fi; \
+      echo "Chrome deb download failed, retry ${n}"; \
+      sleep $((n * 15)); \
+    done \
  && (dpkg --force-all -i /tmp/chrome.deb || true) \
  && apt-get update -qq \
  && DEBIAN_FRONTEND=noninteractive apt-get install -f -y \
