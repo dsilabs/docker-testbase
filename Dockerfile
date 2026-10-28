@@ -9,11 +9,16 @@ FROM python:${PYTHON_VERSION}
 # Stable Chrome 133. Google dropped this .deb; the mirror still has the
 # same package we verified against the old image. Not Chrome for Testing.
 ARG CHROME_DEB_URL=https://mirror.cs.uchicago.edu/google-chrome/pool/main/g/google-chrome-stable/google-chrome-stable_133.0.6943.141-1_amd64.deb
+# The .deb enables dl.google.com without a key apt can use. Remove that
+# source after install so later apt-get update works. Chrome stays pinned.
 RUN wget -O /tmp/chrome.deb "${CHROME_DEB_URL}" \
  && (dpkg --force-all -i /tmp/chrome.deb || true) \
  && apt-get update -qq \
  && DEBIAN_FRONTEND=noninteractive apt-get install -f -y \
  && rm -f /tmp/chrome.deb \
+      /etc/apt/sources.list.d/google-chrome.list \
+      /etc/apt/sources.list.d/google-chrome.sources \
+ && apt-get update -qq \
  && google-chrome --version
 
 # install mariadb

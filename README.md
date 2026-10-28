@@ -72,7 +72,9 @@ To modify the NGINX configuration, you can edit the files inside the container.
 environments. For production use, consider changing this password and adjusting permissions.
 - **Chrome Installation**: Chrome is the stable 133.* `.deb`, not Chrome for
 Testing. Google no longer hosts that package, so the image downloads it from a
-mirror. 133.* is kept because the 134.* build was not stable for testing.
+mirror. The `.deb` enables Google's apt repository without a usable signing
+key, so that source is removed after install. 133.* is kept because the 134.*
+build was not stable for testing.
 - **Customization**: This image is intended as a base. You can further customize it by
 adding specific dependencies, environment variables, or configurations required by your
 project.
